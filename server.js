@@ -31,7 +31,7 @@ const cors = require("cors");
 const allowedOrigins = [
     "http://localhost:3000",
 // "https://YOUR-frontend.vercel.app", // add later
-"https://onlinecardappwebservice-y40v.onrender.com/"
+// "https://onlinecardappwebservice-y40v.onrender.com/"
 ];
 app.use(
     cors({
@@ -74,3 +74,31 @@ app.post('/addcard', async (req, res)=>{
         res.status(500).json({message: 'Server error - could not find card '+card_name});
     }
 });
+
+// Example Route: Update a card
+app.put('/updatecard/:id', async (req, res) => {
+    const { id } = req.params;
+    const { card_name, card_pic } = req.body;
+    try{
+        let connection = await mysql.createConnection(dbConfig);
+        await connection.execute('UPDATE cards SET card_name=?, card_pic=? WHERE id=?', [card_name, card_pic, id]);
+        res.status(201).json({ message: 'Card ' + id + ' updated successfully!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not update card ' + id });
+    }
+});
+
+// Example Route: Delete a card
+app.delete('/deletecard/:id', async (req, res) => {
+    const { id } = req.params;
+    try{
+        let connection = await mysql.createConnection(dbConfig);
+        await connection.execute('DELETE FROM cards WHERE id=?', [id]);
+        res.status(201).json({ message: 'Card ' + id + ' deleted successfully!' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error - could not delete card ' + id });
+    }
+});
+
