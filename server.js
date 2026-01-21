@@ -27,27 +27,27 @@ app.listen(port, ()=>{
 });
 
 
-const cors = require("cors");
-const allowedOrigins = [
-    "http://localhost:3000",
-// "https://YOUR-frontend.vercel.app", // add later
-// "https://onlinecardappwebservice-y40v.onrender.com/"
-];
-app.use(
-    cors({
-        origin: function (origin, callback) {
-// allow requests with no origin (Postman/server-to-server)
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
-            return callback(new Error("Not allowed by CORS"));
-        },
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: false,
-    })
-);
+// const cors = require("cors");
+// const allowedOrigins = [
+//     "http://localhost:3000",
+// // "https://YOUR-frontend.vercel.app", // add later
+// // "https://onlinecardappwebservice-y40v.onrender.com/"
+// ];
+// app.use(
+//     cors({
+//         origin: function (origin, callback) {
+// // allow requests with no origin (Postman/server-to-server)
+//             if (!origin) return callback(null, true);
+//             if (allowedOrigins.includes(origin)) {
+//                 return callback(null, true);
+//             }
+//             return callback(new Error("Not allowed by CORS"));
+//         },
+//         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//         allowedHeaders: ["Content-Type", "Authorization"],
+//         credentials: false,
+//     })
+// );
 
 //route: GET all cards
 app.get('/allcards', async (req, res) => {
