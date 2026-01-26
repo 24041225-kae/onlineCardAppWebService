@@ -2,6 +2,11 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 const port = 3000;
+//initialise express app
+const app = express();
+//helps app to read JSON
+app.use(express.json());
+
 
 
 //database config info
@@ -61,16 +66,6 @@ app.post("/login", async (req,res)=>{
 res.json({token});
 }}
 );
-
-//initialise express app
-const app = express();
-//helps app to read JSON
-app.use(express.json());
-
-//start server
-app.listen(port, ()=>{
-    console.log('Server running on port', port);
-});
 
 
 const cors = require("cors");
@@ -151,5 +146,10 @@ app.delete('/deletecard/:id', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error - could not delete card ' + id });
     }
+});
+
+//start server
+app.listen(port, ()=>{
+    console.log('Server running on port', port);
 });
 
