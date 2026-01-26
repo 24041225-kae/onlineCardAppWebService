@@ -17,15 +17,15 @@ const dbConfig = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
-    waitForConnections : true,
+    waitForConnections: true,
     connectionLimit: 100,
     queueLimit: 0,
 };
 
 const DEMO_USER = {
-  id: 1,
-  username:"admin",
-  password:"admin123"
+    id: 1,
+    username: "admin",
+    password: "admin123"
 }
 
 const jwt = require("jsonwebtoken");
@@ -33,51 +33,51 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to protect routes
 function requireAuth(req, res, next) {
-  const header = req.headers.authorization; // "Bearer TOKEN"
+    const header = req.headers.authorization; // "Bearer TOKEN"
 
-  if (!header) {
-    return res.status(401).json({ error: "Authorization header required" });
-  }
+    if (!header) {
+        return res.status(401).json({ error: "Authorization header required" });
+    }
 
-  const [type, token] = header.split(" ");
-  if (type !== "Bearer" || !token) {
-    return res.status(401).json({ error: "Invalid authorization format" });
-  }
+    const [type, token] = header.split(" ");
+    if (type !== "Bearer" || !token) {
+        return res.status(401).json({ error: "Invalid authorization format" });
+    }
 
-  try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload; // attach user info to request
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
+    try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.user = payload; // attach user info to request
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: "Invalid token" });
+    }
 }
 
-app.post("/login", async (req,res)=>{
-  const {username,password} = req.body;
-  if (username===DEMO_USER.username||password !==DEMO_USER.password){
-    return res.status(401).json({message:"Invalid credentials"});
-  //create token using JWT secret
-  const token=jwt.sign(
-    {id:DEMO_USER.id, username:DEMO_USER.username},
-    JWT_SECRET,
-    {expiresIn:"1h"},
-  );
-res.json({token});
-}}
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+    if (username !== DEMO_USER.username || password !== DEMO_USER.password) {
+        return res.status(401).json({ error: "Invalid credentials" });}
+        //create token using JWT secret
+        const token = jwt.sign(
+            { id: DEMO_USER.id, username: DEMO_USER.username },
+            JWT_SECRET,
+            { expiresIn: "1h" },
+        );
+        res.json({ token });
+    }
 );
 
 
 const cors = require("cors");
 const allowedOrigins = [
     "http://localhost:3000",
-// "https://YOUR-frontend.vercel.app", // add later
-"https://onlinecardappwebservice-y40v.onrender.com/"
+    // "https://YOUR-frontend.vercel.app", // add later
+    "https://onlinecardappwebservice-y40v.onrender.com/"
 ];
 app.use(
     cors({
         origin: function (origin, callback) {
-// allow requests with no origin (Postman/server-to-server)
+            // allow requests with no origin (Postman/server-to-server)
             if (!origin) return callback(null, true);
             if (allowedOrigins.includes(origin)) {
                 return callback(null, true);
@@ -92,27 +92,27 @@ app.use(
 
 //route: GET all cards
 app.get('/allcards', async (req, res) => {
-    try{
+    try {
         let connection = await mysql.createConnection(dbConfig); //connects aiven database server
         const [rows] = await connection.execute('SELECT * FROM defaultdb.cards'); //executes mysql query to get rows from cards table
         res.json(rows); //displays retrieved data in JSON
-    } catch (err){
+    } catch (err) {
         //displays if server got error
         console.log(err);
-        res.status(500).json({message: 'Server error for allcards'});
+        res.status(500).json({ message: 'Server error for allcards' });
     }
 });
 
 //route: create a new card
-app.post('/addcard', requireAuth, async (req, res)=>{
-    const {card_name, card_pic} = req.body;
-    try{
+app.post('/addcard', requireAuth, async (req, res) => {
+    const { card_name, card_pic } = req.body;
+    try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute('INSERT INTO cards (card_name, card_pic) VALUES (?,?)', [card_name, card_pic]); //adds new row
-        res.status(201).json({message: 'Card ' +card_name+' added successfully'}); //display msg
-    } catch(err){
+        res.status(201).json({ message: 'Card ' + card_name + ' added successfully' }); //display msg
+    } catch (err) {
         console.log(err);
-        res.status(500).json({message: 'Server error - could not find card '+card_name});
+        res.status(500).json({ message: 'Server error - could not find card ' + card_name });
     }
 });
 
@@ -121,11 +121,11 @@ app.put('/updatecard/:id', async (req, res) => {
     const { id } = req.params;
     const { card_name, card_pic } = req.body;
     if (!card_name || !card_pic) {
-    return res
-      .status(400)
-      .json({ error: "card_name and card_pic are required" });
-  }
-    try{
+        return res
+            .status(400)
+            .json({ error: "card_name and card_pic are required" });
+    }
+    try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute('UPDATE cards SET card_name=?, card_pic=? WHERE id=?', [card_name, card_pic, id]);
         res.status(201).json({ message: 'Card ' + id + ' updated successfully!' });
@@ -138,7 +138,7 @@ app.put('/updatecard/:id', async (req, res) => {
 // Example Route: Delete a card
 app.delete('/deletecard/:id', async (req, res) => {
     const { id } = req.params;
-    try{
+    try {
         let connection = await mysql.createConnection(dbConfig);
         await connection.execute('DELETE FROM cards WHERE id=?', [id]);
         res.status(201).json({ message: 'Card ' + id + ' deleted successfully!' });
@@ -149,7 +149,7 @@ app.delete('/deletecard/:id', async (req, res) => {
 });
 
 //start server
-app.listen(port, ()=>{
+app.listen(port, () => {
     console.log('Server running on port', port);
 });
 
